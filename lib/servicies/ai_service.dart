@@ -40,8 +40,8 @@ class AiService {
               }"""
             }
           ],
-          "temperature": 0.5, // Mai mică pentru răspunsuri mai precise
-          "response_format": {"type": "json_object"} // Forțează Groq să dea JSON
+          "temperature": 0.5, // Mai mica pentru rsspunsuri mai precise
+          "response_format": {"type": "json_object"} // Fortează Groq să dea JSON
         }),
       );
 
@@ -49,7 +49,7 @@ class AiService {
         var data = jsonDecode(response.body);
         String content = data['choices'][0]['message']['content'];
         print("Răspuns brut de la Groq: $content");
-        // Decodăm string-ul primit ca fiind la rândul lui un obiect JSON
+        // Decodăm string-ul primit ca fiind la randul lui un obiect JSON
         return jsonDecode(content);
       } else {
         print("Eroare API: ${response.statusCode}");

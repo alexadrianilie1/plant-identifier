@@ -1,7 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 
 class LocationService {
-  /// Funcția principală care se ocupă de tot: permisiuni + obținere poziție
+  /// Functia principala care se ocupa de tot: permisiuni + obtinere pozitie
   Future<Position?> getCurrentLocation() async {
   LocationPermission permission = await Geolocator.checkPermission();
 

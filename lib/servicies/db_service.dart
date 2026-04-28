@@ -21,7 +21,7 @@ class DBService {
     String userId = _authService.userId;
 
     try {
-      // 1. Transformam poza în bytes
+      // 1. Transformam poza in bytes
       List<int> imageBytes = await imageFile.readAsBytes();
       
       // 2. Transformam bytes in text (Base64)

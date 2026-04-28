@@ -58,23 +58,23 @@ Future<User?> signInWithGoogle() async {
     try {
 
       await _googleSignIn.initialize();
-      // 1. Deschide fereastra de selecție a contului Google
+      // 1. Deschide fereastra de selectie a contului Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.authenticate();
       
-      if (googleUser == null) return null; // Utilizatorul a închis fereastra
+      if (googleUser == null) return null; // Utilizatorul a inchis fereastra
 
-      // 2. Obține detaliile de autentificare de la Google
+      // 2. Obtine detaliile de autentificare de la Google
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // 3. Creează credentialul pentru Firebase
+      // 3. Creeaza credentialul pentru Firebase
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
 
-      // 4. Autentifică-te în Firebase
+      // 4. Autentificare in Firebase
       final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
 
-      // Sincronizare cu Firestore (opțional, dar recomandat pentru Licență)
+      // Sincronizare cu Firestore
       if (userCredential.user != null) {
         await FirebaseFirestore.instance
             .collection('users')

@@ -11,9 +11,9 @@ class FlowerData {
       'wiki_query': 'Lalea',
     },
     'daisy': {
-      'name': 'Păpădie',
+      'name': 'Margaretă',
       'scientific_name': 'Leucanthemum vulgare',
-      'wiki_query': 'Păpădie',
+      'wiki_query': 'Margaretă',
     },
     'sunflower': {
       'name': 'Floarea soarelui',
@@ -21,9 +21,9 @@ class FlowerData {
       'wiki_query': 'Floarea soarelui',
     },
     'dandelion': {
-      'name': 'Margaretă',
+      'name': 'Păpădie',
       'scientific_name': 'Taraxacum',
-      'wiki_query': 'Margaretă',
+      'wiki_query': 'Păpădie',
     },
   };
 
