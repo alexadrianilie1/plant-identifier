@@ -101,6 +101,6 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
   assets:
-    - assets/labels.txt
-    - assets/model.tflite
+    - assets/model_efficientnetb0_labels_v3.txt
+    - assets/model_efficientnetb0_v3.tflite
     - .env

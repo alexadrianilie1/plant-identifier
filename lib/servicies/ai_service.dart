@@ -64,8 +64,8 @@ class AiService {
     Future<void> loadModel() async {
       try{
         await Tflite.loadModel(
-          model: "assets/model.tflite",
-          labels: "assets/labels.txt",
+          model: "assets/model_efficientnetb0_v3.tflite",
+          labels: "assets/model_efficientnetb0_labels_v3.txt",
           numThreads: 1,
           isAsset: true,
           useGpuDelegate: false,
