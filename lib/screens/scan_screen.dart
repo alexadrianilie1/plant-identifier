@@ -208,7 +208,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     const Text("Incearca sa focalizezi mai bine floarea sau foloseste alt unghi.", style: TextStyle(color: Colors.grey), textAlign: TextAlign.center),
                   ],
                   const SizedBox(height: 30),
-                  if (isSuccess)
+                  if (isSuccess) ...[
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF10B981),
@@ -235,7 +235,6 @@ class _ScanScreenState extends State<ScanScreen> {
                           );
                           if (context.mounted) {
                             Navigator.of(context).pop();
-                            setState(() { _pickedImage = null; });
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Planta a fost salvata!")));
                           }
                         } catch (e) {
@@ -243,9 +242,23 @@ class _ScanScreenState extends State<ScanScreen> {
                         }
                       },
                       icon: Icon(AuthService().isGuest() ? Icons.lock : Icons.save),
-                      label: Text(AuthService().isGuest() ? "Salveaza (Cont necesar)" : "Salveaza in herbar"),
-                    )
-                  else
+                      label: Text(AuthService().isGuest() ? "Salveaza (Cont necesar)" : "Salveaza in ierbar"),
+                    ),
+                    const SizedBox(height: 15),
+                    ElevatedButton.icon(
+                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () 
+                      {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.arrow_downward, color: Colors.black),
+                      label: const Text("Închide", style: TextStyle(color: Colors.black)),
+                    ),
+                  ] else ...[
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const ui.Color.fromARGB(255, 188, 188, 188),
@@ -254,11 +267,12 @@ class _ScanScreenState extends State<ScanScreen> {
                       ),
                       onPressed: () {
                         Navigator.of(context).pop();
-                        setState(() { _pickedImage = null; });
                       },
                       icon: const Icon(Icons.refresh),
                       label: const Text("Incearca din nou"),
                     ),
+                  ]
+                  ,
                   const SizedBox(height: 20),
                 ],
               ),
@@ -266,7 +280,11 @@ class _ScanScreenState extends State<ScanScreen> {
           },
         );
       }
-    );
+    ).whenComplete(() {
+      setState(() {
+        _pickedImage = null; 
+      });
+    });
   }
 
   @override

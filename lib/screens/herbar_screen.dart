@@ -38,7 +38,7 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      title: const Text("Herbarul Meu", style: TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text("Ierbarul Meu", style: TextStyle(fontWeight: FontWeight.bold)),
       centerTitle: true,
     ),
     body: Column(

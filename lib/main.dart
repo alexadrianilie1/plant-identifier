@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:plant_identifier/screens/auth_screen.dart';
+import 'package:plant_identifier/screens/onboarding_screen.dart';
 import 'screens/home_screen.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async
 {
@@ -21,19 +23,22 @@ void main() async
 
   await dotenv.load(fileName: ".env");
 
-  runApp(const MyApp());
+  final prefs = await SharedPreferences.getInstance();
+  final bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
+
+  runApp(MyApp(isFirstTime: isFirstTime));
 }
 
-class MyApp extends StatelessWidget{
-  const MyApp(
-    {
-      super.key,
-    }
-  );
+class MyApp extends StatelessWidget {
+  final bool isFirstTime;
+
+  const MyApp({
+    super.key,
+    required this.isFirstTime,
+  });
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Flower Scanner",
@@ -41,24 +46,35 @@ class MyApp extends StatelessWidget{
         scaffoldBackgroundColor: const Color(0xFF121212),
         primaryColor: const Color(0xFF10B981),
         colorScheme: ColorScheme.dark(
-          primary:  const Color(0xFF121212),
+          primary: const Color(0xFF121212),
           secondary: const Color(0xFF10B981),
         ),
       ),
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        // Verificarea starii de autentificare a utilizatorului
-        builder: (context, snapshot) {
-          if(snapshot.hasData){
-            // Daca utilizatorul este autentificat, afisam ecranul principal
-            return const HomeScreen();
-          }
-          
-          // Daca utilizatorul nu este autentificat, afisam ecranul de autentificare
-          return const AuthScreen();
-        },
+      // 1. Verificam MAI INTAI daca este la prima deschidere a aplicatiei
+      home: isFirstTime 
+          ? const OnboardingScreen() // Daca da, aratam demo-ul
+          : _getAuthOrHomeScreen(),  // Daca nu, verificam autentificarea
+    );
+  }
 
-      )
+  // Logica Firebase intr-o metoda separata pentru lizibilitate
+  Widget _getAuthOrHomeScreen() {
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Un mic ecran de incarcare cat timp Firebase verifica token-ul
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator(color: Color(0xFF10B981))),
+          );
+        }
+        
+        if (snapshot.hasData) {
+          return const HomeScreen(); // Utilizator logat
+        }
+        
+        return const AuthScreen(); // Utilizator nelogat
+      },
     );
   }
 }

@@ -132,7 +132,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 10.0),
               Text(
-                isLogin ? 'Accesează herbarul tău digital' : 'Înregistrează-te pentru a începe',
+                isLogin ? 'Accesează ierbarul tău digital' : 'Înregistrează-te pentru a începe',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 16.0,
