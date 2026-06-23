@@ -23,7 +23,7 @@ class FlowerData {
     'california_poppy': {
       'name': 'Mac californian',
       'scientific_name': 'Eschscholzia californica',
-      'wiki_query': 'Eschscholzia_californica',
+      'wiki_query': 'Mac_californian',
     },
     'carnation': {
       'name': 'Garoafă',

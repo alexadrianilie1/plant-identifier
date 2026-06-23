@@ -31,11 +31,15 @@ class _ScanScreenState extends State<ScanScreen> {
   final ImagePicker _picker = ImagePicker();
   final DBService _dbService = DBService();
 
+  Future<Position?>? _locationFuture;
+
   @override
   void initState() {
     super.initState();
     _initializeCamera();
     _plantRecognizerService.initialize();
+    _locationFuture = _locationService.getCurrentLocation();
+
   }
 
   Future<void> _initializeCamera() async {
@@ -221,7 +225,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           return;
                         }
                         try {
-                          Position? position = await _locationService.getCurrentLocation();
+                          Position? position = await _locationFuture;
                           await _dbService.addFlower(
                             name: FlowerData.getCommonName(_plantResult.label.toLowerCase()) ?? _plantResult.label,
                             scientificName: _plantResult.label,
@@ -235,7 +239,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           );
                           if (context.mounted) {
                             Navigator.of(context).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Planta a fost salvata!")));
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Planta a fost salvata!", style: TextStyle(fontWeight: FontWeight.bold)), backgroundColor: Colors.green,));
                           }
                         } catch (e) {
                           print("Eroare la salvare: $e");
