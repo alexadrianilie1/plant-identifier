@@ -52,7 +52,9 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
 ---
 
 ## Ecranele Aplicației
-
+| Scanare Live (Camera) | Rezultate și Sfaturi AI | Ierbarul Digital (Colecția) |
+|:---:|:---:|:---:|
+| <img src="https://github.com/alexadrianilie1/plant-identifier/blob/main/assets/screens/scan_screen.jpeg" width="200"> | <img src="https://github.com/alexadrianilie1/plant-identifier/blob/main/assets/screens/detail_screen.jpeg" width="200"> | <img src="https://github.com/alexadrianilie1/plant-identifier/blob/main/assets/screens/herbar_screen.png" width="200"> |
 
 ---
 
