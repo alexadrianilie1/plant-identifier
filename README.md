@@ -53,6 +53,7 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
 
 ## Ecranele Aplicației
 
+
 ---
 
 ## Instalare și Configurare (Local Development)
