@@ -69,6 +69,7 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
    cd plant-identifier
 
 2. **Instalează dependențele:**
+    ```bash
     flutter pub get
 
 3. **Configurează Firebase:**
@@ -77,7 +78,9 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
 
 4. **Variabile de Mediu:**
     Creează un fișier .env în rădăcina proiectului și adaugă cheia pentru asistentul AI:
+    ```bash
     GROQ_KEY=cheia_ta_aici
 
 5. **Rulează aplicația pe un dispozitiv fizic sau emulator:**
+    ```bash
     flutter run
