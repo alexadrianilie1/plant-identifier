@@ -117,7 +117,7 @@ class _ScanScreenState extends State<ScanScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: const Text("Cont necesar", style: TextStyle(color: Colors.white)),
         content: const Text(
-          "Vizitatorii pot identifica plante, dar salvarea lor in herbar necesita un cont.",
+          "Vizitatorii pot identifica plante, dar salvarea lor in ierbar necesita un cont.",
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
