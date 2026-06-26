@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Modificăm lista de ecrane să aibă mereu 3 elemente
   List<Widget> get _screens {
     return [
-      _isLoggedIn ? const HerbarScreen() : _buildPlaceholder("Herbar"),
+      _isLoggedIn ? const HerbarScreen() : _buildPlaceholder("Ierbar"),
       const ScanScreen(),
       _isLoggedIn ? const ProfileScreen() : _buildPlaceholder("Profil"),
     ];
