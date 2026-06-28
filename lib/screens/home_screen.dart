@@ -7,6 +7,14 @@ import 'herbar_screen.dart';
 import 'scan_screen.dart';     
 import 'profile_screen.dart';  
 
+/**
+ * Ecranul gazdă (Host Screen) care gestionează navigația principală a aplicației.
+ * 
+ * Această componentă acționează ca un container dinamic. Implementează logica
+ * de restricționare a accesului pe baza stării de autentificare a utilizatorului
+ * (Guest Mode vs. Authenticated Mode) și menține starea ecranelor individuale 
+ * în memorie pentru o tranziție fluidă.
+ */
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -19,7 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool get _isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
-  // Modificăm lista de ecrane să aibă mereu 3 elemente
+  /**
+   * Generează lista ecranelor disponibile în funcție de starea de autentificare.
+   * 
+   * Dacă utilizatorul folosește aplicația în modul "Vizitator" (Guest), modulele
+   * dependente de Cloud Firestore (Ierbar și Profil) sunt înlocuite cu ecrane 
+   * de tip "Placeholder" care solicită autentificarea, prevenind erorile de acces la baza de date.
+   */
   List<Widget> get _screens {
     return [
       _isLoggedIn ? const HerbarScreen() : _buildPlaceholder("Ierbar"),
@@ -28,7 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
-  // Widget care apare în locul ecranelor blocate
+  /**
+   * Construiește un ecran alternativ (Fallback UI) pentru vizitatorii neautentificați.
+   * 
+   * Funcționează ca un mecanism de "Call to Action", explicând utilizatorului 
+   * de ce funcționalitatea este blocată și oferind o cale rapidă de înregistrare.
+   */
   Widget _buildPlaceholder(String title) {
     return Center(
       child: Column(
@@ -49,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Actualizează starea aplicației la interacțiunea cu bara de navigație.
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -128,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  
   List<BottomNavigationBarItem> _buildNavBarItems() {
     if (_isLoggedIn) {
       return [
@@ -143,6 +164,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /**
+   * Metodă utilitară pentru crearea elementelor din bara de navigație.
+   * 
+   * Adaugă un indiciu vizual suplimentar (un cerc cu opacitate redusă) 
+   * în spatele iconiței pentru elementul curent selectat.
+   */
   BottomNavigationBarItem _buildNavItem(IconData icon, IconData activeIcon, String label) {
     return BottomNavigationBarItem(
       icon: Icon(icon, size: 26),

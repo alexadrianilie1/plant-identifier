@@ -3,7 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:plant_identifier/models/flower_data.dart';
 
 
-// MODIFICARE: Am schimbat din StatefulWidget în StatelessWidget
+/**
+ * Ecranul grafic dedicat afișării detaliate a unei identificări botanice.
+ * 
+ * Această clasă a fost implementată intenționat ca un [StatelessWidget] pentru 
+ * a optimiza performanța de randare a framework-ului Flutter. Fiind un ecran
+ * strict de prezentare a unor date deja procesate (metadate și imagine codificată
+ * Base64 din Firestore), nu necesită gestionarea unei stări interne mutabile, 
+ * reducând astfel overhead-ul de memorie.
+ */
 class FlowerDetailScreen extends StatelessWidget {
   final Map<String, dynamic> flowerData;
 
@@ -25,6 +33,7 @@ class FlowerDetailScreen extends StatelessWidget {
     // Extragere imagine Base64
     String base64Image = flowerData['image_base64'] ?? '';
 
+    // Decodarea asincronă a imaginii Base64 pentru a fi randată în UI
     Widget imageWidget;
     if (base64Image.isNotEmpty) {
       try {
@@ -38,6 +47,7 @@ class FlowerDetailScreen extends StatelessWidget {
         imageWidget = Container(color: Colors.grey, child: const Icon(Icons.broken_image));
       }
     } else {
+      // Afișarea unui widget de fallback în cazul în care conversia Base64 eșuează
       imageWidget = Container(
         color: Colors.grey[900],
         child: const Center(
@@ -140,6 +150,7 @@ class FlowerDetailScreen extends StatelessWidget {
                   
                   const SizedBox(height: 20),
 
+                  // --- SFATURI GENERATE DINAMIC DE LLM (GROQ API) ---
                   const Text(
                     "Sfaturi de îngrijire:",
                     style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
@@ -168,6 +179,10 @@ class FlowerDetailScreen extends StatelessWidget {
   }
 }
 
+/**
+ * Metodă utilitară privată pentru construcția componentelor vizuale (rânduri)
+ * care afișează atributele JSON returnate de Groq API.
+ */
 Widget _buildCareTip(IconData icon, String title, String? content) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),

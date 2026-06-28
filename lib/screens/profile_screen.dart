@@ -4,6 +4,13 @@ import 'package:plant_identifier/screens/auth_screen.dart';
 import 'package:plant_identifier/servicies/auth_service.dart';
 import 'package:plant_identifier/servicies/db_service.dart';
 
+/**
+ * Ecranul de Profil care centralizează metadatele utilizatorului și statisticile de utilizare.
+ * 
+ * Este implementat ca un [StatelessWidget] optimizat, bazându-se exclusiv pe arhitectura 
+ * reactivă (Streams) oferită de Firebase pentru a-și actualiza conținutul. Aceasta
+ * elimină necesitatea gestionării manuale a stării (`setState`), reducând consumul de resurse.
+ */
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -45,6 +52,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  /**
+   * Construiește interfața principală a profilului, incluzând avatarul, detaliile
+   * de contact și panoul de statistici agregate.
+   */
   Widget _buildProfileContent(BuildContext context, User? user) {
     final AuthService authService = AuthService();
     final String userEmail = user?.email ?? "Utilizator";
@@ -115,7 +126,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Avatar utilizator cu poza Google sau icon fallback
+  /**
+   * Construiește avatarul utilizatorului pe baza furnizorului de identitate (Identity Provider).
+   * 
+   * Dacă autentificarea a fost realizată prin Google OAuth, extrage URL-ul imaginii.
+   * Aplică o expresie regulată (`replaceAll`) pentru a suprascrie rezoluția nativă 
+   * oferită de Google (de la 96px la 400px), asigurând o calitate superioară pe ecrane HD.
+   */
   Widget buildProfileAvatar(User? user) {
     final photoUrl = user?.photoURL;
     final highResPhoto =
@@ -154,7 +171,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Widget pentru fiecare statistica
+/**
+ * Generator vizual asincron pentru indicatorii statistici.
+ * 
+ * Primește un flux de date (`Stream<int>`) direct din `DBService`. 
+ * Orice adăugare, ștergere sau marcare ca favorit a unei flori în Ierbar va 
+ * forța actualizarea automată a numărului de pe ecran, demonstrând consistența datelor.
+ */
   Widget _buildStatItem(
       IconData icon, String label, Stream<int> streamValue) {
     return Expanded(
@@ -201,7 +224,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Buton de logout cu confirmare
+  /// Construiește butonul de deconectare, integrând o confirmare defensivă (Alert Dialog).
+  /// 
+  /// Previne deconectările accidentale și distrugerea sesiunii curente.
+  /// În cazul unei acțiuni afirmative, stiva de navigare este ștearsă complet (`pushAndRemoveUntil`),
+  /// garantând că utilizatorul nu se poate întoarce la Ierbar apăsând butonul "Back".
   Widget _buildLogoutButton(
       BuildContext context, AuthService authService) {
     return SizedBox(

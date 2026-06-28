@@ -4,12 +4,22 @@ import 'package:flutter_tflite/flutter_tflite.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-
+/**
+ * Clasa [AiService] gestionează componentele de inteligență artificială ale aplicației.
+ * Aceasta include inferența locală utilizând [TensorFlow Lite] pentru clasificare vizuală
+ * și integrarea cu modele de limbaj (LLM) prin [Groq API] pentru suport botanic dinamic.
+ */
 class AiService {
-  // Functie statica pentru a obtine sfaturi de ingrijire
   static const String _url = "https://api.groq.com/openai/v1/chat/completions";
   static final String _apiKey = dotenv.env['GROQ_KEY'] ?? "";
   
+  /**
+   * Interoghează modelul [llama-3.3-70b-versatile] prin API-ul Groq pentru a genera 
+   * sfaturi de îngrijire botanică personalizate.
+   * 
+   * [plantName] - Specia florii identificată de modelul local.
+   * Returnează un [Map] conținând sfaturile structurate în format JSON.
+   */
   Future<Map<String, dynamic>> getPlantCareTips(String plantName) async {
     try {
       var response = await http.post(
@@ -60,13 +70,17 @@ class AiService {
       return {"error": "Eroare de conexiune."};
     }
     }
-    // Incarcam modelul
+
+    /**
+     * Inițializează și încarcă modelul [EfficientNetB0] în interpretorul [TFLite].
+     * Modelul este optimizat prin cuantizare pentru a rula local pe procesorul dispozitivului.
+     */
     Future<void> loadModel() async {
       try{
         await Tflite.loadModel(
           model: "assets/model_efficientnetb0_v3.tflite",
           labels: "assets/model_efficientnetb0_labels_v3.txt",
-          numThreads: 1,
+          numThreads: 1, 
           isAsset: true,
           useGpuDelegate: false,
         );
@@ -75,8 +89,12 @@ class AiService {
       }
   }
 
-  // Analizam imaginea si returnam rezultatul brut
-  // Returneaza o lista sau null
+  /**
+   * Executa inferenta locala pe imaginea capturata.
+   * 
+   * [imagePath] - Calea locala către fisierul imaginii procesate.
+   * Returneaza o lista de [recognitions] (eticheta si scor de incredere) sau null in caz de eroare.
+   */
   Future<List<dynamic>?> analyzeImage(String imagePath) async {
     try{
       var recognitions = await Tflite.runModelOnImage(
@@ -95,7 +113,9 @@ class AiService {
     }
   }
 
-  // Eliberam memoria
+  /**
+   * Eliberam memoria
+   */
   void dispose(){
     Tflite.close();
   }

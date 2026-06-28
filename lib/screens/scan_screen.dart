@@ -13,6 +13,15 @@ import '../servicies/location_service.dart';
 import '../models/plant_result.dart';
 import '../models/flower_data.dart';
 
+/**
+ * Ecranul principal de Scanare (Core Feature) care orchestrează captura vizuală
+ * și procesarea locală (Edge AI).
+ * 
+ * Integrează hardware-ul dispozitivului (Cameră și GPS) și conectează interfața 
+ * grafică cu logica de recunoaștere din [PlantRecognizerService]. 
+ * Gestionează stările asincrone și randarea rezultatelor într-o componentă dinamică
+ * de tip Bottom Sheet.
+ */
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
 
@@ -22,7 +31,11 @@ class ScanScreen extends StatefulWidget {
 
 class _ScanScreenState extends State<ScanScreen> {
   CameraController? _cameraController;
+
+  /// Flag pentru a preveni declanșarea multiplă a procesului de inferență,
+  /// protejând astfel memoria și procesorul telefonului.
   bool _isBusy = false;
+
   File? _pickedImage;
   PlantResult _plantResult = PlantResult.empty();
 
@@ -31,17 +44,24 @@ class _ScanScreenState extends State<ScanScreen> {
   final ImagePicker _picker = ImagePicker();
   final DBService _dbService = DBService();
 
+  /// Promisiune (Future) menținută în stare pentru a preîncărca coordonatele GPS
+  /// în timp ce utilizatorul încadrează floarea, reducând latența la salvare.
   Future<Position?>? _locationFuture;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    // Preîncărcarea modelului TFLite în memorie la montarea ecranului
     _plantRecognizerService.initialize();
+    // Declanșarea obținerii locației în background
     _locationFuture = _locationService.getCurrentLocation();
 
   }
 
+  /**
+   * Inițializează hardware-ul camerei și conectează fluxul video la UI.
+   */
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
@@ -56,6 +76,10 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  /**
+   * Metodă centrală care pasează imaginea către modelul CNN local și 
+   * gestionează tranzițiile de stare din interfață.
+   */
   Future<void> _analyzeImage(String path) async {
     if (_isBusy) return;
 
@@ -88,6 +112,9 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  /**
+   * Capturează un cadru (frame) din stream-ul live al camerei și îl trimite spre analiză.
+   */
   Future<void> _captureAndScan() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) return;
     try {
@@ -99,6 +126,9 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  /**
+   * Deschide galeria nativă a sistemului de operare pentru selecția unei imagini existente.
+   */
   Future<void> _pickFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 25);
     if (image == null) return; 
@@ -109,6 +139,10 @@ class _ScanScreenState extends State<ScanScreen> {
     await _analyzeImage(image.path);
   }
 
+  /**
+   * Dialog defensiv pentru a preveni scrierile neautorizate în baza de date
+   * pentru utilizatorii aflați în modul "Vizitator" (Guest Mode).
+   */
   void _showGuestRestrictionDialog() {
     showDialog(
       context: context,
@@ -137,6 +171,10 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
+  /**
+   * Afișează componenta dinamică (Bottom Sheet) care prezintă rezultatul final,
+   * indiferent dacă identificarea a fost cu succes sau respinsă de pragul defensiv (OOD).
+   */
   void _showResultSheet() {
     bool isSuccess = _plantResult.isIdentified;
 
@@ -169,6 +207,8 @@ class _ScanScreenState extends State<ScanScreen> {
                       ),
                     ),
                   ),
+
+                  // Randare ramificată
                   if (isSuccess) ...[
                     const SizedBox(height: 20),
                     Text(
@@ -206,12 +246,14 @@ class _ScanScreenState extends State<ScanScreen> {
                       ],
                     )
                   ] else ...[
+                    // Stare de eroare (Respinsă de filtru sau neidentificată)
                     const SizedBox(height: 20),
                     const Text("Planta nu a fost recunoscuta.", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                     const SizedBox(height: 10),
                     const Text("Incearca sa focalizezi mai bine floarea sau foloseste alt unghi.", style: TextStyle(color: Colors.grey), textAlign: TextAlign.center),
                   ],
                   const SizedBox(height: 30),
+
                   if (isSuccess) ...[
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
@@ -362,6 +404,7 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
+  /// Efect vizual pentru a asigura partea de UX.
   Widget _buildBlurredImageBackground() {
     return Stack(
       fit: StackFit.expand,
@@ -392,6 +435,7 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 }
 
+/// Metodă utilitară modulară pentru afișarea metadatelor formatate.
 Widget _buildCareTip(IconData icon, String title, String? content) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),

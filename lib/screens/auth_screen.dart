@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:plant_identifier/screens/home_screen.dart';
 import '../servicies/auth_service.dart';
 
+/**
+ * Ecranul grafic (UI) dedicat gestionării sesiunilor utilizatorului.
+ * 
+ * Această componentă este de tip [StatefulWidget] deoarece necesită gestionarea
+ * dinamică a stării interfeței: comutarea între modurile de Autentificare/Înregistrare,
+ * afișarea indicatoarelor de încărcare (loading spinners) în timpul apelurilor de rețea
+ * și validarea în timp real a datelor introduse în formulare.
+ */
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -10,19 +18,31 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  // Controllere pentru extragerea datelor din campurile text
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  
+  // Variabile de stare pentru vizibilitatea parolelor
   bool isPasswordVisible = false;
   bool isConfitmPasswordVisible = false;
   
+  // Variabile pentru controlul fluxului si afisarea datelor
   bool isLogin = true;
   bool isLoading = false;
   String? errorMessage;
 
   final AuthService _authService = AuthService();
 
+  /**
+   * Procesează trimiterea formularului (Autentificare sau Înregistrare).
+   * 
+   * Implementează o logică defensivă de validare la nivel de client (Frontend)
+   * înainte de a iniția apeluri asincrone către [AuthService]. Erorile returnate
+   * de backend (Firebase) sunt interceptate, traduse și afișate în interfață.
+   */
   Future<void> _submit() async {
+    // 1. Declanșăm starea de încarcare și resetăm erorile anterioare
     setState(() {
       isLoading = true;
       errorMessage = null;
@@ -31,6 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
 
       if(isLogin) {
+        // Validare flux autentificare
         if(_passwordController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
           throw "Te rugăm să completezi toate câmpurile.";
         }
@@ -39,6 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
           _passwordController.text.trim(),
         );
       } else {
+        // Validare flux înregistrare
         if(_confirmPasswordController.text.trim().isEmpty || _passwordController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
           throw "Te rugăm să completezi toate câmpurile.";
         }
@@ -75,6 +97,9 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  /**
+   * Gestionează fluxul de autentificare integrată Google Sign-In.
+   */
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       isLoading = true;
@@ -141,6 +166,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 30.0),
 
+              // Afișare condițională a contrainerelui de eroare
               if(errorMessage != null)
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -157,7 +183,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
 
-                // Campul pentru email
+                // Câmpul pentru email
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -165,7 +191,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 decoration: _inputDecoration('Email', Icons.email_outlined),
               ),
               const SizedBox(height: 20.0),
-              // Campul pentru parola
+
+              // Câmpul pentru parolă
               TextField(
                 controller: _passwordController,
                 obscureText: !isPasswordVisible,
@@ -185,7 +212,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
 
-              // Campul pentru confirmarea parolei (doar la inregistrare)
+              // Câmpul pentru confirmarea parolei (doar la înregistrare)
               if(!isLogin) ...[
                 const SizedBox(height: 20.0),
                 TextField(
@@ -208,7 +235,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ],
               const SizedBox(height: 30.0),
-              // Butonul de autentificare/inregistrare
+
+              // Butonul de autentificare/înregistrare
               ElevatedButton(
                 onPressed: isLoading ? null : _submit,
                 style: ElevatedButton.styleFrom(
@@ -230,7 +258,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 )
               ),
               const SizedBox(height: 20.0),
-              // Link pentru schimbarea intre autentificare si inregistrare
+
+              // Mecanismul de comutare între login și register
               TextButton(
                 onPressed: () {
                   setState(() {
@@ -260,6 +289,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
               const SizedBox(height: 20.0),
+
+              // Separator vizual pentru metodele de autentificare alternative
               const Row(
                 children: [
                   Expanded(child: Divider(color: Colors.white24)),
@@ -272,6 +303,8 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 20.0),
 
+
+              // Butonul de integrare Google OAuth
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
@@ -289,6 +322,8 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
 
               const SizedBox(height: 20,),
+
+              // Accesul de tip vizitator (Guest Mode)
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
@@ -307,6 +342,12 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  /**
+   * Metodă utilitară pentru standardizarea aspectului vizual al câmpurilor text.
+   * 
+   * Returnează un obiect [InputDecoration] reutilizabil care menține consistența
+   * designului Dark Mode pe parcursul întregului formular.
+   */
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,

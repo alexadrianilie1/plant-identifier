@@ -5,6 +5,14 @@ import 'package:plant_identifier/models/flower_data.dart';
 import '../servicies/db_service.dart';
 import 'flower_detail_screen.dart';
 
+/**
+ * Ecranul principal pentru vizualizarea colecției personale (Ierbarul Digital).
+ * 
+ * Este implementat ca un [StatefulWidget] deoarece trebuie să gestioneze starea
+ * locală a interfeței (textul de căutare și filtrul pentru favorite) și să 
+ * reconstruiască dinamic lista de elemente pe baza acestor parametri, păstrând
+ * în același timp o conexiune activă (Stream) cu baza de date Firestore.
+ */
 class HerbarScreen extends StatefulWidget {
   const HerbarScreen({super.key});
 
@@ -13,8 +21,13 @@ class HerbarScreen extends StatefulWidget {
 }
 
 class _HerbarScreenState extends State<HerbarScreen> {
+  /// Controler pentru gestionarea input-ului din bara de căutare.
   late TextEditingController searchController;
+
+  /// Stochează termenul de căutare curent
   String searchQuery = "";
+
+  /// Flag care determină dacă se afișează toată colecția sau doar elementele favorite
   bool showOnlyFavorites = false;
 
   @override
@@ -22,7 +35,8 @@ class _HerbarScreenState extends State<HerbarScreen> {
     super.initState();
     searchController = TextEditingController();
   }
-
+  
+  /// Curățarea memoriei
   @override
   void dispose() {
     searchController.dispose();

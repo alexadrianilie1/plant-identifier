@@ -8,10 +8,19 @@ import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/**
+ * Punctul de intrare principal al aplicației (Entry Point).
+ * 
+ * Gestionează faza de bootstrapping (inițializare) a aplicației. Deoarece 
+ * necesită comunicarea cu codul nativ (Platform Channels) înainte de apelul [runApp],
+ * funcția este marcată ca [async], iar [WidgetsFlutterBinding.ensureInitialized] 
+ * garantează că legăturile framework-ului sunt stabilite corect.
+ */
 void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // 1. Inițializarea Firebase
   try{
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -21,14 +30,23 @@ void main() async
     print("Firebase initialization error: $e");
   }
 
+  // 2. Încărcarea variabilelor de mediu
   await dotenv.load(fileName: ".env");
 
+  // 3. Verificarea stării preexistente pentru a determina fluxul inițial
   final prefs = await SharedPreferences.getInstance();
   final bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
   runApp(MyApp(isFirstTime: isFirstTime));
 }
 
+/**
+ * Clasa rădăcină (Root Widget) a arborelui de componente Flutter.
+ * 
+ * Injectează configurația globală a tematicii (Material Design - Dark Mode) 
+ * și definește logica de rutare inițială a utilizatorului pe baza stării locale 
+ * și a validității jetonului de autentificare (Auth Token).
+ */
 class MyApp extends StatelessWidget {
   final bool isFirstTime;
 
@@ -57,7 +75,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  // Logica Firebase intr-o metoda separata pentru lizibilitate
+  /// Logica Firebase intr-o metoda separata pentru lizibilitate
   Widget _getAuthOrHomeScreen() {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),

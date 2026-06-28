@@ -1,4 +1,10 @@
+/// Clasa [FlowerData] gestionează dicționarul general
+/// 
+/// Aceasta se ocupă de maparea lingvistică pentru a "traduce"
+/// prevenite de la model în diferite moduri în funcție de necesitate
+/// (ex. nume popular, nume știițific, nume necesar pentru apelul către Wikipedia REST API).
 class FlowerData {
+  /// Dicționarul imuabil care mapează cele 19 specii suportate de modelul CNN.
   final Map<String, Map<String, String>> flowers = {
     'astilbe': {
       'name': 'Astilbe',
@@ -97,16 +103,39 @@ class FlowerData {
     },
   };
 
+  /**
+   * Extrage cheia optimizată necesară pentru interogarea endpoint-urilor Wikipedia.
+   * 
+   * Rezolvă limitările de căutare ale API-ului, furnizând termenul exact sub care 
+   * specia este indexată pe versiunea în limba română a platformei.
+   * 
+   * [label] - Eticheta brută provenită de la rețeaua neuronală (ex: "california_poppy").
+   * Returnează un [String] cu valoarea de căutare sau [null] dacă specia nu este înregistrată.
+   */
   static String? getWikiQuery(String label) {
     final flowerData = FlowerData().flowers[label.toLowerCase()];
     return flowerData != null ? flowerData['wiki_query'] : null;
   }
 
+  /**
+   * Extrage denumirea științifică (latină) asociată etichetei prezise.
+   * 
+   * [label] - Eticheta brută provenită de la rețeaua neuronală.
+   * Returnează un [String] cu denumirea științifică utilizată în afișările detaliate.
+   */
   static String? getScientificName(String label) {
     final flowerData = FlowerData().flowers[label.toLowerCase()];
     return flowerData != null ? flowerData['scientific_name'] : null;
   }
 
+  /**
+   * Extrage denumirea populară (în limba română) asociată etichetei prezise.
+   * 
+   * Aceasta este valoarea principală afișată utilizatorului în UI și salvată în Ierbar.
+   * 
+   * [label] - Eticheta brută provenită de la rețeaua neuronală.
+   * Returnează un [String] cu denumirea populară.
+   */
   static String? getCommonName(String label) {
     final flowerData = FlowerData().flowers[label.toLowerCase()];
     return flowerData != null ? flowerData['name'] : null;

@@ -1,3 +1,12 @@
+/**
+ * Model de date (Data Transfer Object) care încapsulează rezultatul final
+ * al fluxului de identificare botanică.
+ * 
+ * Această clasă imuabilă agregă informațiile provenite din surse multiple:
+ * inferența locală (Edge AI), descrierile enciclopedice (Wikipedia API) și 
+ * sfaturile generate dinamic (LLM via Groq API), facilitând transferul curat 
+ * al datelor către Nivelul de Prezentare (UI).
+ */
 class PlantResult {
   final String label;      
   final double confidence;  

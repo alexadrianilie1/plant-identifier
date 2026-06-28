@@ -2,11 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+/**
+ * Serviciu centralizat pentru gestionarea fluxurilor de autentificare.
+ * Utilizează [FirebaseAuth] pentru crearea și validarea sesiunilor și
+ * [GoogleSignIn] pentru integrarea protocolului OAuth 2.0.
+ * Datele utilizatorilor sunt sincronizate automat în [Cloud Firestore].
+ */
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
-  // Obtinerea utilizatorului curent sau null daca nu este autentificat
+  /// Returnează instanța utilizatorului curent autentificat.
+  /// Dacă nu există o sesiune activă, returnează [null].
   User? get currentUser => _firebaseAuth.currentUser;
 
   // Autentificare anonima
@@ -20,7 +27,12 @@ class AuthService {
   //   }
   // }
 
-  // Autentificare cu email si parola
+  /**
+   * Autentifică un utilizator existent folosind adresa de email și parola.
+   * 
+   * Aruncă o excepție de tip [FirebaseAuthException] care poate fi tratată
+   * în interfața grafică prin metoda [getErrorMessage].
+   */
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
       UserCredential userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
@@ -31,7 +43,13 @@ class AuthService {
     }
   }
 
-  // Inregistrare cu email si parola
+  /**
+   * Creează un cont nou folosind adresa de email și parola furnizate.
+   * 
+   * După crearea cu succes a contului în Firebase Auth, un document corespunzător
+   * este generat automat în colecția 'users' din [Cloud Firestore] pentru a stoca
+   * metadatele acestuia (ex: data creării).
+   */
   Future<User?> createUserWithEmailAndPassword({required String email, required String password}) async {
     try {
       UserCredential userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
@@ -54,6 +72,13 @@ class AuthService {
     }
   }
 
+/**
+ * Gestionează fluxul de autentificare hibridă prin intermediul Google Sign-In.
+ * 
+ * Integrează protocolul OAuth 2.0. La o autentificare reușită, datele de profil
+ * (nume, fotografie, email) sunt extrase din contul Google și sincronizate 
+ * (prin operațiunea de tip merge) în documentul utilizatorului din Firestore.
+ */
 Future<User?> signInWithGoogle() async {
     try {
 
@@ -74,7 +99,7 @@ Future<User?> signInWithGoogle() async {
       // 4. Autentificare in Firebase
       final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
 
-      // Sincronizare cu Firestore
+      //5. Sincronizare cu Firestore
       if (userCredential.user != null) {
         await FirebaseFirestore.instance
             .collection('users')
@@ -94,24 +119,37 @@ Future<User?> signInWithGoogle() async {
     }
   }
 
-  // Deconectare
+  /// Deconectare
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
 
-  // ID-ul utilizatorului curent
+  /**
+   * Returnează identificatorul unic (UID) al utilizatorului curent.
+   * Dacă utilizatorul nu este autentificat, returnează un string fallback.
+   */
   String get userId {
     return currentUser?.uid ?? 'unknown_user';
   }
 
-  Future<void> signIsAsGuest() async {
+  // Future<void> signIsAsGuest() async {
 
-  }
+  // }
 
+  /**
+   * Verifică starea sesiunii curente.
+   * 
+   * Returnează [true] dacă aplicația este utilizată în modul vizitator 
+   * (niciun utilizator Firebase autentificat).
+   */
   bool isGuest() {
     return _firebaseAuth.currentUser == null;
   }
 
+  /**
+   * Mapare standardizată a codurilor de eroare Firebase în mesaje 
+   * inteligibile și traduse în limba română pentru interfața grafică (UI)
+   */
   String getErrorMessage(dynamic e) {
   if (e is FirebaseAuthException) {
     switch (e.code) {

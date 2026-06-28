@@ -3,10 +3,33 @@ import 'dart:io';      // Necesar pentru File
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'auth_service.dart';
 
+/**
+ * Clasa [DBService] reprezintă stratul de acces la date (Data Access Layer) al aplicației.
+ * Gestionează interacțiunea cu baza de date NoSQL [Cloud Firestore], oferind operațiuni 
+ * de tip CRUD pentru colecția personală de flori (Ierbarul Digital).
+ */
 class DBService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthService _authService = AuthService();
 
+/**
+ * Salvează o nouă identificare botanică în baza de date.
+ * 
+ * Implementează arhitectura de stocare unificată: imaginea fizică este convertită 
+ * într-un șir de caractere [Base64] direct pe dispozitiv. Această abordare atomică 
+ * salvează imaginea și metadatele într-un singur document Firestore, permițând 
+ * mecanismului nativ de cache să le stocheze la pachet pentru un acces complet offline.
+ * 
+ * Parametri:
+ * - [name]: Denumirea populară a plantei.
+ * - [scientificName]: Denumirea științifică a plantei.
+ * - [description]: Descrierea preluată asincron via Wikipedia API.
+ * - [confidence]: Scorul de încredere (precizia) generat de modelul TFLite local.
+ * - [imageFile]: Fișierul local al imaginii capturate.
+ * - [isFavorite]: Starea inițială de marcaj (favorit sau nu).
+ * - [careTips]: Sfaturile de îngrijire generate de Groq API, formatate ca JSON (Map).
+ * - [latitude] și [longitude]: Coordonatele geografice ale capturii.
+ */
   Future<void> addFlower({
     required String name,
     required String scientificName,
@@ -52,6 +75,13 @@ class DBService {
     }
   }
 
+  /**
+   * Returnează un flux continuu ([Stream]) cu documentele din Ierbarul utilizatorului.
+   * 
+   * Datele sunt ordonate descrescător după marcajul de timp (cele mai noi primele).
+   * Utilizarea unui Stream permite interfeței (Flutter UI) să reacționeze automat
+   * la modificările din baza de date, fără a necesita reîncărcări manuale.
+   */
   Stream<QuerySnapshot> getFlowersStream() {
     String userId = _authService.userId;
 
@@ -63,6 +93,11 @@ class DBService {
         .snapshots();
   }
 
+  /**
+   * Elimină o înregistrare specifică din colecția utilizatorului.
+   * 
+   * [flowerId] reprezintă identificatorul unic al documentului din Firestore.
+   */
   Future<void> deleteFlower(String flowerId) async {
     String userId = _authService.userId;
 
@@ -80,6 +115,12 @@ class DBService {
     }
   }
 
+  /**
+   * Actualizează starea de marcaj (favorit) a unei plante din Ierbar.
+   * 
+   * Folosește actualizarea parțială (`update`) pentru a modifica doar câmpul boolean `is_favorite`,
+   * o abordare optimizată care minimizează consumul de lățime de bandă.
+   */
   Future<void> updateFavoriteStatus(String flowerId, bool isFavorite) async {
     String userId = _authService.userId;
 
@@ -98,6 +139,11 @@ class DBService {
     }
   }
 
+  /**
+   * Calculează și returnează numărul total de flori salvate de utilizator.
+   * 
+   * Extrage mărimea snapshot-ului curent, utilă pentru afișarea statisticilor în ecranul Profil.
+   */
   Stream<int> getFlowerCount() {
     String userId = _authService.userId;
 
@@ -114,6 +160,12 @@ class DBService {
     }
   }
 
+  /**
+   * Calculează și returnează numărul de flori marcate ca favorite.
+   * 
+   * Aplică un filtru `where` direct la nivelul interogării bazei de date, 
+   * respectând bunele practici de evitare a filtrării datelor pe partea de client.
+   */
   Stream<int> getFavoriteFlowerCount() {
     String userId = _authService.userId;
 
@@ -131,6 +183,12 @@ class DBService {
     }
   }
 
+  /**
+   * Determină numărul de specii unice (distincte) descoperite de utilizator.
+   * 
+   * Iterând prin snapshot-ul documentelor, utilizează o structură de date de tip [Set] 
+   * pentru a garanta stocarea exclusivă a numelor unice, eliminând duplicatele.
+   */
   Stream<int> getDistinctPlantCount() {
     String userId = _authService.userId;
 

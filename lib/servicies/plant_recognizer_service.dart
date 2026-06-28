@@ -4,6 +4,14 @@ import '../models/plant_result.dart';
 import 'ai_service.dart';
 import 'wiki_service.dart';
 
+/**
+ * Serviciul central de orchestrare (Facade) pentru fluxul de recunoaștere a plantelor.
+ * 
+ * Această clasă integrează procesarea locală (Edge AI) cu serviciile externe (Cloud APIs).
+ * Gestionează întregul ciclu de viață al unei predicții: inițializarea modelului, 
+ * executarea inferenței, validarea defensivă a rezultatului (OOD Detection) și 
+ * îmbogățirea datelor prin interogări asincrone către Wikipedia și Groq.
+ */
 class PlantRecognizerService {
   final AiService _aiService = AiService();
   final WikiService _wikiService = WikiService();
@@ -21,6 +29,7 @@ class PlantRecognizerService {
     // Interogam AI-ul
     var recognitions = await _aiService.analyzeImage(imagePath);
 
+    // Tratam cazul in care interpretorul TFLite esueaza sau nu returneaza date
     if(recognitions == null || recognitions.isEmpty) {
       return PlantResult(
         label: "Eroare",
@@ -31,6 +40,7 @@ class PlantRecognizerService {
       );
     }
 
+    // Extragem predictia cu probabilitatea cea mai mare
     var topResult = recognitions[0];
     String rawLabel = topResult["label"].toString().replaceAll(RegExp(r'[0,9]'), '').trim();
     double score = topResult["confidence"] * 100;
@@ -59,6 +69,7 @@ class PlantRecognizerService {
     );
   }
 
+  /// Eliberam memoria
   void dispose(){
     _aiService.dispose();
   }

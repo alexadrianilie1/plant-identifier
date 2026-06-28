@@ -5,6 +5,11 @@ import 'package:plant_identifier/screens/auth_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
 
+/// Ecranul de Onboarding care este vizibil doar la prima instalare a aplicației.
+/// 
+/// Această componentă este concepută să îl ghideze pe utilizator la prima descărcare a
+/// aplicației, afișându-i acestuia principalele funcționalități și modul optim prin care
+/// acesta ar trebui să le utilizeze pentru o experință cât mai fluidă.
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
