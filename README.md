@@ -64,6 +64,7 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
 * SDK-ul Flutter instalat (versiunea recomandată 3.x+).
 * Un cont [Firebase](https://console.firebase.google.com/) activ.
 * O cheie API de la [Groq](https://console.groq.com/).
+* În cazul rulării aplicației pe un emulator este necesară crearea acestuia în prealabil.
 
 ### Pași de instalare
 1. **Clonează repository-ul:**
@@ -87,3 +88,17 @@ Modelul a fost antrenat pe un set masiv de **17.199 de imagini** și este capabi
 5. **Rulează aplicația pe un dispozitiv fizic sau emulator:**
     ```bash
     flutter run
+
+## Pași de rulare pe emulator ##
+
+1. **Verifică disponibilitatea emulatorului:**
+    ```bash
+    flutter emulators
+2. **Lansarea emulatorului:**
+    ```bash
+    flutter emulators --launch <emulator_id>
+3. **Rulează aplicația:**
+    ```bash
+    flutter run
+
+
